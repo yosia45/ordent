@@ -19,7 +19,15 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-type UserDetailResponse struct {
+type GetUserByEmailResponse struct {
+	FullName string `json:"full_name"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	IsAdmin  bool   `json:"is_admin"`
+	Password string `json:"password"`
+}
+
+type GetUserDetailResponse struct {
 	FullName  string    `json:"full_name"`
 	Email     string    `json:"email"`
 	Username  string    `json:"username"`
