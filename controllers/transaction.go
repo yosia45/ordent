@@ -25,6 +25,20 @@ func NewTransactionController(itemRepo repositories.ItemRepository, transactionR
 	}
 }
 
+// CreateTransaction godoc
+// @Summary Create a new transaction
+// @Description Create a new transaction. This endpoint can only be accessed by users with isAdmin=false.
+// @Tags transaction
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param transaction body dto.TransactionRequestBody true "Transaction details"
+// @Success 201 {object} map[string]string "Transaction created successfully"
+// @Failure 400 {object} utils.APIError "Bad Request"
+// @Failure 401 {object} utils.APIError "Unauthorized"
+// @Failure 403 {object} utils.APIError "Forbidden"
+// @Failure 500 {object} utils.APIError "Internal Server Error"
+// @Router /api/v1/transactions [post]
 func (tc *TransactionController) CreateTransaction(c echo.Context) error {
 	userPayload := c.Get("userPayload").(*dto.JWTPayload)
 

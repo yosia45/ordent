@@ -1,0 +1,452 @@
+definitions:
+  dto.GetItemDetailTransactionResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.GetUserDetailResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      is_admin:
+        type: boolean
+      transactions:
+        items:
+          $ref: '#/definitions/dto.TransactionResponse'
+        type: array
+      username:
+        type: string
+    type: object
+  dto.ItemRequestBody:
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+    type: object
+  dto.LoginBodyRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.RegisterBodyRequest:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      is_admin:
+        type: boolean
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.TransactionDetailRequestBody:
+    properties:
+      item_id:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  dto.TransactionDetailResponse:
+    properties:
+      item:
+        $ref: '#/definitions/dto.GetItemDetailTransactionResponse'
+      price_per_unit:
+        type: number
+      quantity:
+        type: integer
+      total_price:
+        type: number
+    type: object
+  dto.TransactionRequestBody:
+    properties:
+      paid_amount:
+        type: number
+      transaction_detail:
+        items:
+          $ref: '#/definitions/dto.TransactionDetailRequestBody'
+        type: array
+    type: object
+  dto.TransactionResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_success_paid:
+        type: boolean
+      total_price:
+        type: number
+      transaction_details:
+        items:
+          $ref: '#/definitions/dto.TransactionDetailResponse'
+        type: array
+    type: object
+  models.Item:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+      transaction_details:
+        items:
+          $ref: '#/definitions/models.TransactionDetail'
+        type: array
+      updated_at:
+        type: string
+    type: object
+  models.TransactionDetail:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      item:
+        $ref: '#/definitions/models.Item'
+      item_id:
+        type: string
+      price_per_unit:
+        type: number
+      quantity:
+        type: integer
+      total_price:
+        type: number
+      transaction_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  utils.APIError:
+    description: Represents a standard API error response
+    properties:
+      code:
+        type: integer
+      detail:
+        type: string
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is the API documentation for Ordent backend.
+  title: Ordent API
+  version: "1.0"
+paths:
+  /api/v1/items:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all items. No authentication required.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Item'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIError'
+      summary: Get all items
+      tags:
+      - item
+    post:
+      consumes:
+      - application/json
+      description: Create a new item. This endpoint can only be accessed by admin
+        users (isAdmin=true).
+      parameters:
+      - description: Item details
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ItemRequestBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Item'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIError'
+      security:
+      - BearerAuth: []
+      summary: Create new item
+      tags:
+      - item
+  /api/v1/items/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing item. This endpoint can only be accessed by
+        admin users (isAdmin=true).
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIError'
+      security:
+      - BearerAuth: []
+      summary: Delete an existing item
+      tags:
+      - item
+    put:
+      consumes:
+      - application/json
+      description: Edit an existing item. This endpoint can only be accessed by admin
+        users (isAdmin=true).
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Item details
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ItemRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Item'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIError'
+      security:
+      - BearerAuth: []
+      summary: Edit an existing item
+      tags:
+      - item
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user with email and password, and return a JWT token.
+      parameters:
+      - description: Login details
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginBodyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "401":
+          description: Invalid email/password
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIError'
+      summary: Login a user
+      tags:
+      - users
+  /api/v1/myprofiles:
+    get:
+      consumes:
+      - application/json
+      description: Get user profile. This endpoint can only be accessed by users with
+        `isAdmin = false`.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetUserDetailResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIError'
+      security:
+      - BearerAuth: []
+      summary: Get My Profile
+      tags:
+      - user
+  /api/v1/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with the provided details.
+      parameters:
+      - description: User registration details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterBodyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIError'
+      summary: Register a new user
+      tags:
+      - users
+  /api/v1/transactions:
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction. This endpoint can only be accessed by
+        users with isAdmin=false.
+      parameters:
+      - description: Transaction details
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TransactionRequestBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Transaction created successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIError'
+      security:
+      - BearerAuth: []
+      summary: Create a new transaction
+      tags:
+      - transaction
+swagger: "2.0"

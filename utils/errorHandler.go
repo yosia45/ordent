@@ -1,3 +1,4 @@
+// utils/api_error.go
 package utils
 
 import (
@@ -7,6 +8,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// APIError godoc
+// @Description Represents a standard API error response
+// @Property code int "The error code"
+// @Property message string "A brief message explaining the error"
+// @Property detail string "Detailed explanation of the error"
 type APIError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`

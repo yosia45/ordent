@@ -6,10 +6,16 @@ import (
 	"ordent/routes"
 	"os"
 
+	_ "ordent/docs"
+
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
+// @title Ordent API
+// @version 1.0
+// @description This is the API documentation for Ordent backend.
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -25,6 +31,8 @@ func main() {
 	routes.UserRoutes(e)
 	routes.ItemRoutes(e)
 	routes.TransactionRoutes(e)
+
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	e.Logger.Fatal(e.Start(":" + port))
 }
