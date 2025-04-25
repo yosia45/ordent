@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type RegisterBodyRequest struct {
 	FullName string `json:"full_name"`
@@ -20,17 +24,20 @@ type LoginResponse struct {
 }
 
 type GetUserByEmailResponse struct {
-	FullName string `json:"full_name"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	IsAdmin  bool   `json:"is_admin"`
-	Password string `json:"password"`
+	ID       uuid.UUID `json:"id"`
+	FullName string    `json:"full_name"`
+	Email    string    `json:"email"`
+	Username string    `json:"username"`
+	IsAdmin  bool      `json:"is_admin"`
+	Password string    `json:"password"`
 }
 
 type GetUserDetailResponse struct {
-	FullName  string    `json:"full_name"`
-	Email     string    `json:"email"`
-	Username  string    `json:"username"`
-	IsAdmin   bool      `json:"is_admin"`
-	CreatedAt time.Time `json:"created_at"`
+	ID           uuid.UUID             `json:"id"`
+	FullName     string                `json:"full_name"`
+	Email        string                `json:"email"`
+	Username     string                `json:"username"`
+	IsAdmin      bool                  `json:"is_admin"`
+	CreatedAt    time.Time             `json:"created_at"`
+	Transactions []TransactionResponse `json:"transactions"`
 }

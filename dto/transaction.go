@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type TransactionRequestBody struct {
 	PaidAmount                   float64                        `json:"paid_amount"`
@@ -8,7 +12,7 @@ type TransactionRequestBody struct {
 }
 
 type TransactionResponse struct {
-	ID                 string                      `json:"id"`
+	ID                 uuid.UUID                   `json:"id"`
 	TotalPrice         float64                     `json:"total_price"`
 	IsSuccessPaid      bool                        `json:"is_success_paid"`
 	CreatedAt          time.Time                   `json:"created_at"`
