@@ -13,16 +13,21 @@ import (
 // @Property code int "The error code"
 // @Property message string "A brief message explaining the error"
 // @Property detail string "Detailed explanation of the error"
+// APIError is a custom error type that represents an API error response.
 type APIError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Detail  string `json:"detail,omitempty"`
 }
 
+// Error implements the `Error()` method for the `APIError` struct,
+// providing a string representation of the error.
 func (e *APIError) Error() string {
+	// Return the error in a formatted string that includes the code, message, and detail
 	return fmt.Sprintf("Code:%d, Message: %s, Detail: %s", e.Code, e.Message, e.Detail)
 }
 
+// NewNotFoundError creates a new APIError with a 404 Not Found status code.
 func NewNotFoundError(message string) *APIError {
 	return &APIError{
 		Code:    http.StatusNotFound,
@@ -31,6 +36,7 @@ func NewNotFoundError(message string) *APIError {
 	}
 }
 
+// NewBadRequestError creates a new APIError with a 400 Bad Request status code.
 func NewBadRequestError(message string) *APIError {
 	return &APIError{
 		Code:    http.StatusBadRequest,
@@ -39,6 +45,7 @@ func NewBadRequestError(message string) *APIError {
 	}
 }
 
+// NewInternalError creates a new APIError with a 500 Internal Server Error status code.
 func NewInternalError(message string) *APIError {
 	return &APIError{
 		Code:    http.StatusInternalServerError,
@@ -47,6 +54,7 @@ func NewInternalError(message string) *APIError {
 	}
 }
 
+// NewUnauthorizedError creates a new APIError with a 401 Unauthorized status code.
 func NewUnauthorizedError(message string) *APIError {
 	return &APIError{
 		Code:    http.StatusUnauthorized,
@@ -55,6 +63,7 @@ func NewUnauthorizedError(message string) *APIError {
 	}
 }
 
+// NewForbiddenError creates a new APIError with a 403 Forbidden status code.
 func NewForbiddenError(message string) *APIError {
 	return &APIError{
 		Code:    http.StatusForbidden,
@@ -63,6 +72,8 @@ func NewForbiddenError(message string) *APIError {
 	}
 }
 
+// HandlerError is a helper function that returns the APIError as a JSON response.
 func HandlerError(c echo.Context, err *APIError) error {
+	// Return the APIError as a JSON response with the error code and message
 	return c.JSON(err.Code, err)
 }

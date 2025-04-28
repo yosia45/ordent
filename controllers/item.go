@@ -11,10 +11,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// ItemController handles operations related to items, such as creating, fetching, updating, and deleting items.
 type ItemController struct {
 	itemRepo repositories.ItemRepository
 }
 
+// NewItemController initializes and returns a new ItemController with the provided repository.
 func NewItemController(itemRepo repositories.ItemRepository) *ItemController {
 	return &ItemController{
 		itemRepo: itemRepo,
@@ -36,12 +38,15 @@ func NewItemController(itemRepo repositories.ItemRepository) *ItemController {
 // @Failure 500 {object} utils.APIError "Internal Server Error"
 // @Router /api/v1/items [post]
 func (ic *ItemController) CreateItem(c echo.Context) error {
+	// Create a variable to bind the request body to
 	var itemBody dto.ItemRequestBody
 
+	// Bind the incoming request body to the itemBody structure
 	if err := c.Bind(&itemBody); err != nil {
 		return utils.HandlerError(c, utils.NewBadRequestError("Invalid request body"))
 	}
 
+	// Validations
 	if itemBody.Name == "" {
 		return utils.HandlerError(c, utils.NewBadRequestError("Name is required"))
 	}
@@ -54,12 +59,14 @@ func (ic *ItemController) CreateItem(c echo.Context) error {
 		return utils.HandlerError(c, utils.NewBadRequestError("Quantity is required"))
 	}
 
+	// Create a new Item object using the validated request data
 	newItem := &models.Item{
 		Name:  itemBody.Name,
 		Price: itemBody.Price,
 		Stock: itemBody.Stock,
 	}
 
+	// Save the new item in the repository (database)
 	if err := ic.itemRepo.CreateItem(newItem); err != nil {
 		return utils.HandlerError(c, utils.NewInternalError("Failed to create item"))
 	}
@@ -77,6 +84,7 @@ func (ic *ItemController) CreateItem(c echo.Context) error {
 // @Failure 500 {object} utils.APIError "Internal Server Error"
 // @Router /api/v1/items [get]
 func (ic *ItemController) GetAllItems(c echo.Context) error {
+	// Retrieve all items from the repository
 	items, err := ic.itemRepo.GetAllItems()
 	if err != nil {
 		return utils.HandlerError(c, utils.NewInternalError("Failed to fetch items"))
@@ -102,18 +110,24 @@ func (ic *ItemController) GetAllItems(c echo.Context) error {
 // @Failure 500 {object} utils.APIError "Internal Server Error"
 // @Router /api/v1/items/{id} [put]
 func (ic *ItemController) EditItem(c echo.Context) error {
+	// Retrieve the item ID from the URL parameters
 	itemID := c.Param("id")
 
+	// Parse the item ID from string to UUID
 	parsedItemID, err := uuid.Parse(itemID)
 	if err != nil {
 		return utils.HandlerError(c, utils.NewBadRequestError("Invalid item ID"))
 	}
 
+	// Create a variable to bind the request body to
 	var itemBody dto.ItemRequestBody
+
+	// Bind the incoming request body to the itemBody structure
 	if err := c.Bind(&itemBody); err != nil {
 		return utils.HandlerError(c, utils.NewBadRequestError("Invalid request body"))
 	}
 
+	// Validations
 	if itemBody.Name == "" {
 		return utils.HandlerError(c, utils.NewBadRequestError("Name is required"))
 	}
@@ -126,12 +140,14 @@ func (ic *ItemController) EditItem(c echo.Context) error {
 		return utils.HandlerError(c, utils.NewBadRequestError("Quantity is required"))
 	}
 
+	// Create a new Item object with the updated data
 	item := &models.Item{
 		Name:  itemBody.Name,
 		Price: itemBody.Price,
 		Stock: itemBody.Stock,
 	}
 
+	// Update the item in the repository (database)
 	if err := ic.itemRepo.EditItem(item, parsedItemID); err != nil {
 		return utils.HandlerError(c, utils.NewInternalError("Failed to update item"))
 	}
@@ -155,13 +171,16 @@ func (ic *ItemController) EditItem(c echo.Context) error {
 // @Failure 500 {object} utils.APIError "Internal Server Error"
 // @Router /api/v1/items/{id} [delete]
 func (ic *ItemController) DeleteItem(c echo.Context) error {
+	// Retrieve the item ID from the URL parameters
 	itemID := c.Param("id")
 
+	// Parse the item ID from string to UUID
 	parsedItemID, err := uuid.Parse(itemID)
 	if err != nil {
 		return utils.HandlerError(c, utils.NewBadRequestError("Invalid item ID"))
 	}
 
+	// Attempt to delete the item from the repository (database)
 	if err := ic.itemRepo.DeleteItem(parsedItemID); err != nil {
 		return utils.HandlerError(c, utils.NewInternalError("Failed to delete item"))
 	}

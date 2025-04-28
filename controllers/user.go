@@ -95,6 +95,7 @@ func (uc *UserController) LoginUser(c echo.Context) error {
 		return utils.HandlerError(c, utils.NewBadRequestError("Invalid request body"))
 	}
 
+	// Validations
 	if loginBody.Email == "" {
 		return utils.HandlerError(c, utils.NewBadRequestError("Email is required"))
 	}
@@ -103,21 +104,25 @@ func (uc *UserController) LoginUser(c echo.Context) error {
 		return utils.HandlerError(c, utils.NewBadRequestError("Password is required"))
 	}
 
+	// Find user based on email
 	foundUser, err := uc.userRepo.GetUserByEmail(loginBody.Email)
 	if err != nil {
 		return utils.HandlerError(c, utils.NewInternalError("Failed to fetch user"))
 	}
 
+	// Compare the stored hashed password in database with the password body
 	err = bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(loginBody.Password))
 	if err != nil {
 		return utils.HandlerError(c, utils.NewUnauthorizedError("Invalid password/email"))
 	}
 
+	// Create JWT Payload for JWT Token
 	JWTPayload := dto.JWTPayload{
 		UserID:  foundUser.ID,
 		IsAdmin: foundUser.IsAdmin,
 	}
 
+	// Create JWT Token based on payload
 	token, err := middlewares.GenerateJWT(JWTPayload)
 	if err != nil {
 		return utils.HandlerError(c, utils.NewInternalError("Failed to generate token"))
