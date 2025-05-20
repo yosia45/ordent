@@ -1,0 +1,43 @@
+services:
+  app:
+    container_name: ordent
+    build:
+      context: ./ordent
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      JWT_SECRET: ${JWT_SECRET_KEY}
+      PORT: 8080
+      DB_HOST: ordent-mysql
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    networks:
+      - ordent
+    volumes:
+      - ./ordent:/app
+
+  mysql:
+    container_name: ordent-mysql
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - ordent
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  ordent:
