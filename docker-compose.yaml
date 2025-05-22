@@ -1,37 +1,37 @@
 services:
-  app:
-    container_name: ordent
-    build:
-      context: .
+  app: # Define the application service
+    container_name: ordent # Set the container name to 'ordent'
+    build: 
+      context: . # Find Dockerfile in current directory as build context
     ports:
-      - "8080:8080"
+      - "8080:8080" # Map host port 8080 to container port 8080
     depends_on:
       mysql:
-        condition: service_healthy
+        condition: service_healthy # Wait until MySQL is healthy before starting this service
     env_file:
-      - .env
+      - .env # Load environment variables from the .env file
     volumes:
-      - ./.env:/app/.env:ro
+      - ./.env:/app/.env:ro # Mount .env file into container (read-only) at /app/.env
     networks:
-      - ordent
+      - ordent # Connect this service to the 'ordent' network
 
-  mysql:
-    container_name: ordent-mysql
-    image: mysql:8.0
+  mysql: # Define the MySQL database service
+    container_name: ordent-mysql # Set the container name to 'ordent-mysql'
+    image: mysql:8.0 # Use the official MySQL 8.0 image
     ports:
-      - "3306:3306"
+      - "3306:3306" # Map host port 3306 to container port 3306
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} # Set root password from environment variable
+      MYSQL_DATABASE: ${DB_NAME} # Create a database using the value from .env
     networks:
-      - ordent
+      - ordent # Connect this service to the 'ordent' network
     volumes:
-      - /home/ladyhana/Documents/codes/mysql-storage:/var/lib/mysql
+      - /home/ladyhana/Documents/codes/mysql-storage:/var/lib/mysql # Persist MySQL data to host directory
     healthcheck:
-      test: ["CMD-SHELL", "mysql -uroot -p${DB_PASSWORD} -e 'SELECT 1;'"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      test: ["CMD-SHELL", "mysql -uroot -p${DB_PASSWORD} -e 'SELECT 1;'"] # Check if MySQL is accepting connections
+      interval: 10s # Run health check every 10 seconds
+      timeout: 5s # Health check times out after 5 seconds
+      retries: 3 # Mark container as unhealthy after 3 failed checks
 
 networks:
-  ordent:
+  ordent: # Define a custom Docker network named 'ordent'
